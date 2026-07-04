@@ -4,6 +4,7 @@ import { Suspense, useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import KalonIdentity from "@/components/KalonIdentity";
+import KalonLegenda from "@/components/KalonLegenda";
 
 interface Cidade {
   id: string;
@@ -182,6 +183,10 @@ function AgendaFormContent() {
               
               {resultado.identity && (
                 <KalonIdentity identity={resultado.identity} />
+              )}
+              
+              {resultado.legenda && (
+                <KalonLegenda legenda={resultado.legenda} />
               )}
             </div>
 
