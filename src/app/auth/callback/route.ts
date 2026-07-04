@@ -7,6 +7,12 @@ export async function GET(request: Request) {
   const code = searchParams.get('code')
   const next = searchParams.get('next') ?? '/dashboard'
 
+  // LOG DIAGNÓSTICO
+  console.log('AUTH CALLBACK CALLED')
+  console.log('Full URL:', request.url)
+  console.log('Code:', code)
+  console.log('All params:', Object.fromEntries(searchParams))
+
   if (code) {
     const cookieStore = await cookies()
     const supabase = createServerClient(
@@ -27,6 +33,9 @@ export async function GET(request: Request) {
     )
 
     const { error } = await supabase.auth.exchangeCodeForSession(code)
+    if (error) {
+      console.error('exchangeCodeForSession error:', error)
+    }
     if (!error) {
       return NextResponse.redirect(`${origin}${next}`)
     }
