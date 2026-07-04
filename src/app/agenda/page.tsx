@@ -177,7 +177,7 @@ function AgendaFormContent() {
               <p className="font-semibold text-lg">{resultado.nome}</p>
               {resultado.identity && (
                 <div className="mt-4 p-4 rounded-lg bg-black/20 border border-white/10 font-mono text-xs text-[var(--astro-primary)] overflow-x-auto whitespace-pre-wrap">
-                  {resultado.identity}
+                  {JSON.stringify(resultado.identity, null, 2)}
                 </div>
               )}
             </div>
