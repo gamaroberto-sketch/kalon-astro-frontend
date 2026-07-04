@@ -6,6 +6,7 @@ import Link from "next/link";
 import KalonIdentity from "@/components/KalonIdentity";
 import KalonLegenda from "@/components/KalonLegenda";
 import KalonObservacoes from "@/components/KalonObservacoes";
+import AgendaKalon from "@/components/AgendaKalon";
 
 interface Cidade {
   id: string;
@@ -197,37 +198,7 @@ function AgendaFormContent() {
               />
             </div>
 
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold mb-4 border-b border-white/10 pb-2">Janelas Temporais</h3>
-              {resultado.janelas && resultado.janelas.length > 0 ? (
-                resultado.janelas.map((janela: any, idx: number) => (
-                  <div key={idx} className="p-4 rounded-lg bg-white/5 border border-white/10 flex items-start gap-4 hover:bg-white/10 transition-colors">
-                    <div className="flex flex-col items-center justify-center min-w-[60px] bg-[var(--astro-primary)]/20 text-[var(--astro-primary)] rounded-md py-2">
-                      <span className="text-2xl font-bold leading-none">{janela.day}</span>
-                      <span className="text-xs uppercase tracking-wider font-semibold">{janela.mon}</span>
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex justify-between items-start mb-2">
-                        <span className="text-sm opacity-80">Pico: {janela.pico}</span>
-                      </div>
-                      
-                      {/* Renderizar as ações (Beleza, Força, etc.) */}
-                      {janela.campos && Object.entries(janela.campos).map(([chave, info]: [string, any]) => (
-                        <div key={chave} className="mt-2 text-sm border-l-2 border-[var(--astro-primary)] pl-3">
-                          <strong className="block text-white/90">{info.label || chave}</strong>
-                          <span className="opacity-70 text-xs block mt-1">Aspecto: {info.aspecto} ({info.orbe})</span>
-                          <span className="opacity-70 text-xs block">Alvo: {info.natal}</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-8 opacity-60">
-                  Nenhuma janela favorável encontrada para este período.
-                </div>
-              )}
-            </div>
+            <AgendaKalon janelas={resultado.janelas} nome={resultado.nome} />
             
             <div className="mt-8 text-center">
               <Link 
