@@ -15,7 +15,7 @@ interface AgendaResult {
   // Define basics for now
   nome: string;
   janelas: any[];
-  identity?: string;
+  identity?: any;
   [key: string]: any;
 }
 
