@@ -3,6 +3,7 @@
 import { Suspense, useState, useEffect, useRef } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import KalonIdentity from "@/components/KalonIdentity";
 
 interface Cidade {
   id: string;
@@ -180,40 +181,7 @@ function AgendaFormContent() {
               )}
               
               {resultado.identity && (
-                <div className="mt-6 space-y-4">
-                  <h3 className="text-sm uppercase tracking-wider font-semibold opacity-60 mb-3">Identidade Astrológica</h3>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                    {[
-                      { key: 'sol', label: 'Sol' },
-                      { key: 'lua', label: 'Lua' },
-                      { key: 'mercurio', label: 'Mercúrio' },
-                      { key: 'venus', label: 'Vênus' },
-                      { key: 'marte', label: 'Marte' },
-                      { key: 'jupiter', label: 'Júpiter' },
-                      { key: 'saturno', label: 'Saturno' },
-                      { key: 'asc', label: 'Ascendente' },
-                      { key: 'mc', label: 'Meio do Céu (MC)' }
-                    ].map(planeta => {
-                      const data = resultado.identity[planeta.key];
-                      if (!data) return null;
-                      return (
-                        <div key={planeta.key} className="p-3 rounded-lg bg-white/5 border border-white/10 flex flex-col justify-center">
-                          <span className="text-xs uppercase tracking-wider opacity-60 mb-1">{planeta.label}</span>
-                          <span className="font-medium text-[var(--astro-primary)] text-sm">{data.texto}</span>
-                          {planeta.key === 'asc' && data.regente_do_ascendente?.classico?.[0] && (
-                            <span className="text-[10px] opacity-70 mt-1">Regente: {data.regente_do_ascendente.classico[0]}</span>
-                          )}
-                        </div>
-                      )
-                    })}
-                  </div>
-                  
-                  {/* Rodapé técnico discreto com report_id */}
-                  <div className="mt-4 pt-4 border-t border-white/5 text-[10px] opacity-40 text-center uppercase tracking-widest leading-relaxed">
-                    Sistema {resultado.identity.sistema_casas || 'Placidus'} · Zodíaco {resultado.identity.zodiaco || 'Tropical'} · {resultado.identity.efemerides || 'Swiss Ephemeris'}
-                    {resultado.identity.report_id && <span className="block mt-1">ID: {resultado.identity.report_id}</span>}
-                  </div>
-                </div>
+                <KalonIdentity identity={resultado.identity} />
               )}
             </div>
 
