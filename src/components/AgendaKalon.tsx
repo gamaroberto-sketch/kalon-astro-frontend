@@ -33,16 +33,20 @@ export default function AgendaKalon({ janelas, nome }: AgendaKalonProps) {
   const tableRef = useRef<HTMLDivElement>(null);
   const [exportando, setExportando] = useState(false);
 
-  // 1. Extração dinâmica das colunas
+  // 1. Extração dinâmica das colunas com label amigável
   const colunas = useMemo(() => {
     if (!janelas) return [];
-    const chavesSet = new Set<string>();
+    const chavesMap = new Map<string, string>();
     janelas.forEach(j => {
       if (j.campos) {
-        Object.keys(j.campos).forEach(k => chavesSet.add(k));
+        Object.entries(j.campos).forEach(([k, info]) => {
+          if (!chavesMap.has(k)) {
+            chavesMap.set(k, info.label || k);
+          }
+        });
       }
     });
-    return Array.from(chavesSet);
+    return Array.from(chavesMap.entries()).map(([key, label]) => ({ key, label }));
   }, [janelas]);
 
   // 2. Próxima oportunidade (fuso horário local via ISO parse)
@@ -129,7 +133,7 @@ export default function AgendaKalon({ janelas, nome }: AgendaKalonProps) {
               <th className="py-3 px-4 text-xs uppercase tracking-wider opacity-60 font-medium">Data / Pico</th>
               <th className="py-3 px-4 text-xs uppercase tracking-wider opacity-60 font-medium">Objetivo</th>
               {colunas.map(col => (
-                <th key={col} className="py-3 px-4 text-xs uppercase tracking-wider opacity-60 font-medium text-center">{col}</th>
+                <th key={col.key} className="py-3 px-4 text-xs uppercase tracking-wider opacity-60 font-medium text-center">{col.label}</th>
               ))}
             </tr>
           </thead>
@@ -159,9 +163,9 @@ export default function AgendaKalon({ janelas, nome }: AgendaKalonProps) {
                     
                     {/* Células de Critérios */}
                     {colunas.map(col => {
-                      const campoInfo = janela.campos?.[col];
+                      const campoInfo = janela.campos?.[col.key];
                       return (
-                        <td key={col} className="py-4 px-4 text-center">
+                        <td key={col.key} className="py-4 px-4 text-center">
                           {campoInfo ? (
                             <div className="flex flex-col items-center justify-center">
                               <span 
@@ -187,11 +191,11 @@ export default function AgendaKalon({ janelas, nome }: AgendaKalonProps) {
                         <div className="text-xs uppercase tracking-widest opacity-50 mb-4 font-semibold">Detalhamento Astrológico</div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {colunas.map(col => {
-                            const campoInfo = janela.campos?.[col];
+                            const campoInfo = janela.campos?.[col.key];
                             if (!campoInfo || !campoInfo.auditoria || campoInfo.auditoria.length === 0) return null;
                             
                             return (
-                              <div key={col} className="bg-white/5 p-4 rounded-lg border border-white/5">
+                              <div key={col.key} className="bg-white/5 p-4 rounded-lg border border-white/5">
                                 <div className="flex items-center gap-2 mb-3">
                                   <span style={{ color: campoInfo.cor || '#fff' }}>{campoInfo.icone}</span>
                                   <h5 className="font-semibold text-sm" style={{ color: campoInfo.cor || '#fff' }}>{campoInfo.label || col}</h5>
