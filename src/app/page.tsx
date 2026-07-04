@@ -7,7 +7,7 @@ export default function Home() {
         
         {/* Brand SVG styled via CSS mask */}
         <div 
-          className="w-36 h-36 md:w-44 md:h-44 relative bg-[var(--astro-primary)] transition-colors duration-300"
+          className="w-48 h-48 md:w-56 md:h-56 relative bg-[var(--astro-primary)] transition-colors duration-300"
           style={{
             WebkitMaskImage: "url('/brand/kalon-symbol-master.svg')",
             WebkitMaskRepeat: "no-repeat",
@@ -21,6 +21,9 @@ export default function Home() {
         />
 
         <div className="flex flex-col gap-6 items-center">
+          <span className="text-xl md:text-2xl uppercase tracking-[0.25em] font-semibold text-[var(--astro-primary)]">
+            Kalon Astro
+          </span>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
             Descubra seus melhores momentos.
           </h1>
