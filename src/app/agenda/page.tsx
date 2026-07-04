@@ -5,6 +5,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import KalonIdentity from "@/components/KalonIdentity";
 import KalonLegenda from "@/components/KalonLegenda";
+import KalonObservacoes from "@/components/KalonObservacoes";
 
 interface Cidade {
   id: string;
@@ -188,6 +189,12 @@ function AgendaFormContent() {
               {resultado.legenda && (
                 <KalonLegenda legenda={resultado.legenda} />
               )}
+              
+              <KalonObservacoes 
+                o_que_e={resultado.o_que_e} 
+                como_usar={resultado.como_usar} 
+                observacoes={resultado.observacoes} 
+              />
             </div>
 
             <div className="space-y-4">
