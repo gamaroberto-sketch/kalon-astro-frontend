@@ -1,26 +1,25 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --astro-primary: #D4AF37;
+  --astro-primary-dark: #C89B2B;
+  --astro-bg: #0F172A;
+  --astro-card: #1E293B;
+  --astro-text: #F8FAFC;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-primary: var(--astro-primary);
+  --color-primary-dark: var(--astro-primary-dark);
+  --color-background: var(--astro-bg);
+  --color-foreground: var(--astro-text);
+  --color-card: var(--astro-card);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: var(--astro-bg);
+  color: var(--astro-text);
   font-family: Arial, Helvetica, sans-serif;
 }
