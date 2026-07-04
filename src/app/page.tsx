@@ -5,25 +5,28 @@ export default function Home() {
     <div className="flex flex-col items-center justify-center min-h-screen p-6 font-[family-name:var(--font-geist-sans)] bg-[var(--astro-bg)] text-[var(--astro-text)]">
       <main className="flex flex-col items-center justify-center text-center max-w-2xl w-full gap-10">
         
-        {/* Brand SVG styled via CSS mask */}
-        <div 
-          className="w-48 h-48 md:w-56 md:h-56 relative bg-[var(--astro-primary)] transition-colors duration-300"
-          style={{
-            WebkitMaskImage: "url('/brand/kalon-symbol-master.svg')",
-            WebkitMaskRepeat: "no-repeat",
-            WebkitMaskPosition: "center",
-            WebkitMaskSize: "contain",
-            maskImage: "url('/brand/kalon-symbol-master.svg')",
-            maskRepeat: "no-repeat",
-            maskPosition: "center",
-            maskSize: "contain",
-          }}
-        />
-
-        <div className="flex flex-col gap-6 items-center">
+        {/* Brand Block */}
+        <div className="flex flex-col items-center gap-4">
+          {/* Brand SVG styled via CSS mask */}
+          <div 
+            className="w-48 h-48 md:w-56 md:h-56 relative bg-[var(--astro-primary)] transition-colors duration-300"
+            style={{
+              WebkitMaskImage: "url('/brand/kalon-symbol-master.svg')",
+              WebkitMaskRepeat: "no-repeat",
+              WebkitMaskPosition: "center",
+              WebkitMaskSize: "contain",
+              maskImage: "url('/brand/kalon-symbol-master.svg')",
+              maskRepeat: "no-repeat",
+              maskPosition: "center",
+              maskSize: "contain",
+            }}
+          />
           <span className="text-xl md:text-2xl uppercase tracking-[0.25em] font-semibold text-[var(--astro-primary)]">
             Kalon Astro
           </span>
+        </div>
+
+        <div className="flex flex-col gap-6 items-center">
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight">
             Descubra seus melhores momentos.
           </h1>
