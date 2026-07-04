@@ -7,6 +7,9 @@ export async function GET(request: Request) {
   const code = searchParams.get('code')
   const next = searchParams.get('next') ?? '/dashboard'
 
+  await fetch('https://example.com')
+  console.log('fetch test done')
+
   // LOG DIAGNÓSTICO
   console.log('AUTH CALLBACK CALLED')
   console.log('Full URL:', request.url)
