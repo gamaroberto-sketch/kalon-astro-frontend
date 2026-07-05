@@ -39,11 +39,28 @@ export async function middleware(request: NextRequest) {
     data: { user },
   } = await supabase.auth.getUser();
 
+  const isProtectedRoute = request.nextUrl.pathname.startsWith('/dashboard') || request.nextUrl.pathname.startsWith('/agenda');
+
   // Redirect unauthenticated users trying to access protected routes
-  if (!user && request.nextUrl.pathname.startsWith('/dashboard')) {
+  if (!user && isProtectedRoute) {
     const url = request.nextUrl.clone();
     url.pathname = '/login';
     return NextResponse.redirect(url);
+  }
+
+  // Alpha Access Check: bloqueia acesso se não estiver na allowlist ativa
+  if (user && isProtectedRoute) {
+    const { data: alphaAccess, error } = await supabase
+      .from('alpha_access')
+      .select('status')
+      .eq('email', user.email || '')
+      .single();
+
+    if (error || !alphaAccess || alphaAccess.status !== 'ativo') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/unauthorized';
+      return NextResponse.redirect(url);
+    }
   }
 
   // Optional: Redirect authenticated users away from login page
