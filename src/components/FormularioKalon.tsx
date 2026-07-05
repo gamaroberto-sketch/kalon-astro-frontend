@@ -35,6 +35,7 @@ export default function FormularioKalon({
   const [cidades, setCidades] = useState<Cidade[]>([]);
   const [cidadesFiltradas, setCidadesFiltradas] = useState<Cidade[]>([]);
   const [isAutocompleteOpen, setIsAutocompleteOpen] = useState(false);
+  const [indiceDestacado, setIndiceDestacado] = useState<number>(-1);
   const autocompleteRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -67,6 +68,7 @@ export default function FormularioKalon({
     ).slice(0, 10);
     
     setCidadesFiltradas(filtradas);
+    setIndiceDestacado(-1); // Reseta o destaque ao filtrar
   }, [cidadeBusca, cidades, dados.cidadeSelecionada]);
 
   useEffect(() => {
@@ -89,6 +91,25 @@ export default function FormularioKalon({
     onCidadeBuscaChange(e.target.value);
     onDadosChange({ cidadeSelecionada: null });
     setIsAutocompleteOpen(true);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!isAutocompleteOpen || cidadesFiltradas.length === 0) return;
+
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setIndiceDestacado(prev => (prev < cidadesFiltradas.length - 1 ? prev + 1 : prev));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setIndiceDestacado(prev => (prev > 0 ? prev - 1 : 0));
+    } else if (e.key === "Enter") {
+      if (indiceDestacado >= 0 && indiceDestacado < cidadesFiltradas.length) {
+        e.preventDefault();
+        handleSelecionarCidade(cidadesFiltradas[indiceDestacado].display);
+      }
+    } else if (e.key === "Escape") {
+      setIsAutocompleteOpen(false);
+    }
   };
 
   return (
@@ -154,6 +175,7 @@ export default function FormularioKalon({
             value={cidadeBusca}
             onChange={handleCidadeChange}
             onFocus={() => setIsAutocompleteOpen(true)}
+            onKeyDown={handleKeyDown}
             className={`w-full px-4 py-3 rounded-lg bg-black/20 border border-white/10 focus:border-[var(--astro-primary)] focus:outline-none focus:ring-1 focus:ring-[var(--astro-primary)] transition-colors disabled:opacity-50 ${dados.cidadeSelecionada === null && cidadeBusca.length > 0 ? 'border-red-500/50 focus:border-red-500/50 focus:ring-red-500/50' : ''}`}
             placeholder="Digite para buscar..."
           />
@@ -165,11 +187,11 @@ export default function FormularioKalon({
           
           {isAutocompleteOpen && cidadesFiltradas.length > 0 && !disabled && (
             <ul className="absolute z-50 w-full mt-1 max-h-60 overflow-y-auto bg-[#1a1a1a] border border-white/10 rounded-lg shadow-2xl">
-              {cidadesFiltradas.map(cid => (
+              {cidadesFiltradas.map((cid, idx) => (
                 <li 
                   key={cid.id} 
                   onClick={() => handleSelecionarCidade(cid.display)}
-                  className="px-4 py-3 hover:bg-white/10 cursor-pointer text-sm transition-colors border-b border-white/5 last:border-0"
+                  className={`px-4 py-3 hover:bg-white/10 cursor-pointer text-sm transition-colors border-b border-white/5 last:border-0 ${idx === indiceDestacado ? 'bg-white/10 text-[var(--astro-primary)]' : ''}`}
                 >
                   {cid.display}
                 </li>
