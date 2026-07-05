@@ -19,6 +19,8 @@ interface Janela {
   day: string;
   mon: string;
   pico: string;
+  inicio?: string;
+  fim?: string;
   ativos: string[];
   campos: Record<string, JanelaCampo>;
 }
@@ -62,6 +64,16 @@ export default function AgendaKalon({ janelas, nome }: AgendaKalonProps) {
       return dataJanela > agora;
     });
   }, [janelas]);
+
+  const diasLabel = useMemo(() => {
+    if (!proximaJanela) return null;
+    const agora = new Date();
+    agora.setHours(0,0,0,0);
+    const [ano, mes, dia] = proximaJanela.date_key.split('-').map(Number);
+    const dataProx = new Date(ano, mes - 1, dia);
+    const diffDias = Math.round((dataProx.getTime() - agora.getTime()) / 86400000);
+    return diffDias === 0 ? 'Hoje!' : diffDias === 1 ? 'em 1 dia' : `em ${diffDias} dias`;
+  }, [proximaJanela]);
 
   // 3. Exportação PNG
   const handleExportPNG = async () => {
@@ -114,7 +126,9 @@ export default function AgendaKalon({ janelas, nome }: AgendaKalonProps) {
       {proximaJanela && (
         <div className="bg-[var(--astro-primary)]/10 border border-[var(--astro-primary)]/30 rounded-xl p-4 flex items-center justify-between">
           <div>
-            <h4 className="text-[var(--astro-primary)] text-sm font-bold uppercase tracking-wider mb-1">Próxima Oportunidade</h4>
+            <h4 className="text-[var(--astro-primary)] text-sm font-bold uppercase tracking-wider mb-1 flex items-center gap-2">
+              Próxima Oportunidade <span className="bg-[var(--astro-primary)] text-black px-2 py-0.5 rounded-full text-[10px] font-black">{diasLabel}</span>
+            </h4>
             <p className="text-sm opacity-90">
               Sua próxima janela se abre dia <strong>{proximaJanela.day} de {proximaJanela.mon}</strong> às <strong>{proximaJanela.pico}</strong>.
             </p>
@@ -130,16 +144,20 @@ export default function AgendaKalon({ janelas, nome }: AgendaKalonProps) {
         <table className="w-full text-left border-collapse min-w-[600px]">
           <thead>
             <tr className="border-b border-white/10">
-              <th className="py-3 px-4 text-xs uppercase tracking-wider opacity-60 font-medium">Data / Pico</th>
+              <th className="py-3 px-4 text-xs uppercase tracking-wider opacity-60 font-medium">Data</th>
+              <th className="py-3 px-4 text-xs uppercase tracking-wider opacity-60 font-medium">Pico</th>
+              <th className="py-3 px-4 text-xs uppercase tracking-wider opacity-60 font-medium whitespace-nowrap">Janela</th>
               <th className="py-3 px-4 text-xs uppercase tracking-wider opacity-60 font-medium">Objetivo</th>
               {colunas.map(col => (
                 <th key={col.key} className="py-3 px-4 text-xs uppercase tracking-wider opacity-60 font-medium text-center">{col.label}</th>
               ))}
+              <th className="py-3 px-4 w-8"></th>
             </tr>
           </thead>
           <tbody>
             {janelas.map((janela, idx) => {
               const isExpanded = linhaExpandida === idx;
+              const ativos = colunas.filter(col => janela.campos?.[col.key]).map(col => col.label);
               
               return (
                 <React.Fragment key={idx}>
@@ -149,16 +167,19 @@ export default function AgendaKalon({ janelas, nome }: AgendaKalonProps) {
                     className="border-b border-white/5 hover:bg-white/5 transition-colors cursor-pointer group"
                   >
                     <td className="py-4 px-4 whitespace-nowrap">
-                      <div className="flex items-center gap-3">
-                        <div className="flex flex-col items-center justify-center w-12 h-12 bg-black/20 rounded-lg border border-white/5">
-                          <span className="text-lg font-bold leading-none">{janela.day}</span>
-                          <span className="text-[10px] uppercase font-semibold text-[var(--astro-primary)]">{janela.mon}</span>
-                        </div>
-                        <span className="text-sm opacity-80">{janela.pico}</span>
+                      <div className="flex flex-col items-center justify-center w-12 h-12 bg-black/20 rounded-lg border border-white/5">
+                        <span className="text-lg font-bold leading-none">{janela.day}</span>
+                        <span className="text-[10px] uppercase font-semibold text-[var(--astro-primary)]">{janela.mon}</span>
                       </div>
                     </td>
+                    <td className="py-4 px-4 whitespace-nowrap">
+                      <span className="text-sm opacity-80">{janela.pico}</span>
+                    </td>
+                    <td className="py-4 px-4 whitespace-nowrap">
+                      <span className="text-sm opacity-80">{janela.inicio} → {janela.fim}</span>
+                    </td>
                     <td className="py-4 px-4">
-                      <span className="text-sm font-medium">{janela.ativos?.join(' + ') || 'Janela Neutra'}</span>
+                      <span className="text-sm font-medium">{ativos.length > 0 ? ativos.join(' + ') : 'Janela Neutra'}</span>
                     </td>
                     
                     {/* Células de Critérios */}
@@ -182,12 +203,17 @@ export default function AgendaKalon({ janelas, nome }: AgendaKalonProps) {
                         </td>
                       );
                     })}
+                    
+                    {/* FD-107: Chevron indicador de expansão */}
+                    <td className="py-4 px-4 text-center text-xl opacity-30 group-hover:opacity-100 transition-opacity">
+                      {isExpanded ? '▾' : '›'}
+                    </td>
                   </tr>
                   
                   {/* Linha de Detalhe (Auditoria) */}
                   {isExpanded && (
                     <tr className="bg-black/30 border-b border-white/10">
-                      <td colSpan={colunas.length + 2} className="py-6 px-6">
+                      <td colSpan={colunas.length + 5} className="py-6 px-6">
                         <div className="text-xs uppercase tracking-widest opacity-50 mb-4 font-semibold">Detalhamento Astrológico</div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           {colunas.map(col => {
