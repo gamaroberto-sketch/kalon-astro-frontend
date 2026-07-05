@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState, useRef } from 'react';
-import html2canvas from 'html2canvas';
+import { toPng } from 'html-to-image';
 
 interface JanelaCampo {
   label: string;
@@ -80,11 +80,10 @@ export default function AgendaKalon({ janelas, nome }: AgendaKalonProps) {
     if (!tableRef.current) return;
     try {
       setExportando(true);
-      const canvas = await html2canvas(tableRef.current, {
+      const dataUrl = await toPng(tableRef.current, {
         backgroundColor: '#0f0f11', // Cor base do tema para evitar fundo transparente zoado
-        scale: 2 // Maior resolução
+        pixelRatio: 2 // Maior resolução
       });
-      const dataUrl = canvas.toDataURL("image/png");
       const link = document.createElement('a');
       link.download = `Agenda_${nome.replace(/\s+/g, '_')}.png`;
       link.href = dataUrl;
@@ -154,7 +153,7 @@ export default function AgendaKalon({ janelas, nome }: AgendaKalonProps) {
       )}
 
       {/* Área da Tabela (capturada no print) */}
-      <div ref={tableRef} className="bg-[var(--astro-card)] p-4 rounded-xl overflow-x-auto">
+      <div ref={tableRef} className="bg-[var(--astro-card)] p-4 rounded-xl overflow-x-auto print:overflow-visible print:h-auto">
         <table className="w-full text-left border-collapse min-w-[600px]">
           <thead>
             <tr className="border-b border-white/10">
