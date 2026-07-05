@@ -30,11 +30,11 @@ export default function KalonIdentity({ identity, nivelPadrao = 'essencial' }: K
   ];
 
   return (
-    <div className="mt-6 space-y-4">
+    <div className="mt-6 space-y-4 print:text-black">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-4">
-        <h3 className="text-sm uppercase tracking-wider font-semibold opacity-60">Identidade Astrológica</h3>
+        <h3 className="text-sm uppercase tracking-wider font-semibold opacity-60 print:opacity-100 print:text-black">Identidade Astrológica</h3>
         
-        <div className="flex bg-black/20 rounded-full p-1 border border-white/5 text-xs w-max">
+        <div className="flex bg-black/20 rounded-full p-1 border border-white/5 text-xs w-max print:hidden">
           <button 
             onClick={() => setNivel('essencial')}
             className={`px-3 py-1.5 rounded-full transition-colors ${nivel === 'essencial' ? 'bg-[var(--astro-primary)] text-[var(--astro-bg)] font-semibold' : 'opacity-70 hover:opacity-100'}`}
@@ -64,19 +64,19 @@ export default function KalonIdentity({ identity, nivelPadrao = 'essencial' }: K
           if (!data) return null;
 
           return (
-            <div key={planeta.key} className="p-3 rounded-lg bg-white/5 border border-white/10 flex flex-col justify-center">
-              <span className="text-xs uppercase tracking-wider opacity-60 mb-1">{planeta.label}</span>
-              <span className="font-medium text-[var(--astro-primary)] text-sm">{data?.texto}</span>
+            <div key={planeta.key} className="p-3 rounded-lg bg-white/5 border border-white/10 flex flex-col justify-center print:bg-transparent print:border-gray-300">
+              <span className="text-xs uppercase tracking-wider opacity-60 mb-1 print:opacity-100 print:text-gray-700">{planeta.label}</span>
+              <span className="font-medium text-[var(--astro-primary)] text-sm print:text-black print:font-bold">{data?.texto}</span>
               
               {planeta.key === 'asc' && data?.regente_do_ascendente && (
                 <div className="mt-2 space-y-1">
                   {exibirExplorador && data.regente_do_ascendente.classico?.length > 0 && (
-                    <div className="text-[10px] opacity-70">
+                    <div className="text-[10px] opacity-70 print:opacity-100 print:text-gray-800">
                       Regente Clássico: {data.regente_do_ascendente.classico.join(' e ')}
                     </div>
                   )}
                   {exibirProfissional && data.regente_do_ascendente.moderno?.length > 0 && (
-                    <div className="text-[10px] opacity-70">
+                    <div className="text-[10px] opacity-70 print:opacity-100 print:text-gray-800">
                       Regente Moderno: {data.regente_do_ascendente.moderno.map((mod: string, idx: number) => {
                         const implementado = data.regente_do_ascendente.moderno_implementado?.[idx];
                         return (
@@ -96,7 +96,7 @@ export default function KalonIdentity({ identity, nivelPadrao = 'essencial' }: K
       </div>
       
       {exibirExplorador && (
-        <div className="mt-4 pt-4 border-t border-white/5 text-[10px] opacity-40 text-center uppercase tracking-widest leading-relaxed">
+        <div className="mt-4 pt-4 border-t border-white/5 text-[10px] opacity-40 text-center uppercase tracking-widest leading-relaxed print:border-gray-300 print:opacity-100 print:text-gray-600">
           Sistema {identity?.sistema_casas || 'Placidus'} · Zodíaco {identity?.zodiaco || 'Tropical'} · {identity?.efemerides || 'Swiss Ephemeris'}
           {identity?.report_id && <span className="block mt-1">ID: {identity.report_id}</span>}
         </div>
