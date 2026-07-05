@@ -217,7 +217,7 @@ function DashboardContent() {
                 </h2>
                 <button 
                   onClick={handleNovaAgenda}
-                  className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm font-semibold transition-colors"
+                  className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm font-semibold transition-colors print:hidden"
                 >
                   ← Voltar às Estratégias
                 </button>
@@ -241,7 +241,7 @@ function DashboardContent() {
 
               <AgendaKalon janelas={resultadoAgenda.janelas} nome={resultadoAgenda.nome} />
               
-              <div className="mt-12 text-center pb-12">
+              <div className="mt-12 text-center pb-12 print:hidden">
                 <button 
                   onClick={handleNovaAgenda}
                   className="inline-block py-3 px-8 rounded-full font-semibold transition-all duration-300 border border-[var(--astro-primary)] text-[var(--astro-primary)] hover:bg-[var(--astro-primary)] hover:text-[var(--astro-bg)]"
