@@ -224,7 +224,7 @@ export default function AgendaKalon({ janelas, nome }: AgendaKalonProps) {
                               <div key={col.key} className="bg-white/5 p-4 rounded-lg border border-white/5">
                                 <div className="flex items-center gap-2 mb-3">
                                   <span style={{ color: campoInfo.cor || '#fff' }}>{campoInfo.icone}</span>
-                                  <h5 className="font-semibold text-sm" style={{ color: campoInfo.cor || '#fff' }}>{campoInfo.label || col}</h5>
+                                  <h5 className="font-semibold text-sm" style={{ color: campoInfo.cor || '#fff' }}>{campoInfo.label || col.label}</h5>
                                 </div>
                                 <div className="space-y-3">
                                   {campoInfo.auditoria.map((audItem, audIdx) => (
