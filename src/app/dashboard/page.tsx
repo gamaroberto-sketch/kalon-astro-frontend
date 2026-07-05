@@ -1,28 +1,44 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useEffect, useState, useRef } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
+import FormularioKalon, { FormDados } from "@/components/FormularioKalon";
+import GridEstrategias, { Estrategia } from "@/components/GridEstrategias";
+import KalonIdentity from "@/components/KalonIdentity";
+import KalonLegenda from "@/components/KalonLegenda";
+import KalonObservacoes from "@/components/KalonObservacoes";
+import AgendaKalon from "@/components/AgendaKalon";
 
-interface Estrategia {
-  id: string;
-  nome: string;
-  descricao: string;
-  suite: string;
-  modulo: string;
-  versao: string;
-  status: string;
-}
-
-export default function DashboardPage() {
+function DashboardContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const paramEstrategia = searchParams.get("estrategia");
+
   const [userEmail, setUserEmail] = useState<string | null>(null);
   const [loadingUser, setLoadingUser] = useState(true);
   
+  // App State
   const [estrategias, setEstrategias] = useState<Estrategia[]>([]);
   const [loadingEstrategias, setLoadingEstrategias] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
+  
+  // Form State
+  const [dadosFormulario, setDadosFormulario] = useState<FormDados>({
+    nome: "",
+    dataNascimento: "",
+    horaNascimento: "",
+    cidadeSelecionada: null,
+    dataInicio: ""
+  });
+  const [cidadeBusca, setCidadeBusca] = useState("");
+
+  // Result State
+  const [resultadoAgenda, setResultadoAgenda] = useState<any | null>(null);
+  const [loadingAgenda, setLoadingAgenda] = useState(false);
+
+  const resultsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -62,6 +78,63 @@ export default function DashboardPage() {
     router.push("/");
   };
 
+  const handleDadosChange = (novosDados: Partial<FormDados>) => {
+    setDadosFormulario(prev => ({ ...prev, ...novosDados }));
+  };
+
+  const handleGerarCalendario = async (estrategia_id: string) => {
+    if (!dadosFormulario.nome || !dadosFormulario.dataNascimento || !dadosFormulario.cidadeSelecionada || !dadosFormulario.dataInicio) {
+      setErrorMsg("Preencha todos os campos do formulário (Nome, Data, Cidade e Data Início) antes de gerar a agenda.");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
+
+    setLoadingAgenda(true);
+    setErrorMsg("");
+
+    try {
+      const payload = {
+        estrategia_id: estrategia_id,
+        nome: dadosFormulario.nome,
+        data_nascimento: dadosFormulario.dataNascimento,
+        hora_nascimento: dadosFormulario.horaNascimento || "00:00",
+        cidade: dadosFormulario.cidadeSelecionada,
+        data_inicio: dadosFormulario.dataInicio
+      };
+
+      const res = await fetch("https://kalon-analyzer-production-69a7.up.railway.app/api/v1/agenda", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        throw new Error("Falha ao gerar agenda. Verifique os dados e tente novamente.");
+      }
+
+      const data = await res.json();
+      setResultadoAgenda(data);
+      
+      // Rolar suavemente para o resultado
+      setTimeout(() => {
+        resultsRef.current?.scrollIntoView({ behavior: "smooth" });
+      }, 100);
+      
+    } catch (err: any) {
+      setErrorMsg(err.message || "Erro desconhecido ao comunicar com o servidor.");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } finally {
+      setLoadingAgenda(false);
+    }
+  };
+
+  const handleNovaAgenda = () => {
+    setResultadoAgenda(null);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   if (loadingUser) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[var(--astro-bg)] text-[var(--astro-text)]">
@@ -74,12 +147,12 @@ export default function DashboardPage() {
     <div className="min-h-screen p-6 font-[family-name:var(--font-geist-sans)] bg-[var(--astro-bg)] text-[var(--astro-text)] flex flex-col items-center">
       
       {/* Header */}
-      <header className="w-full max-w-5xl flex flex-col md:flex-row items-center justify-between gap-6 mb-16 pt-4">
+      <header className="w-full max-w-5xl flex flex-col md:flex-row items-center justify-between gap-6 mb-12 pt-4">
         {/* Brand Block */}
         <Link href="/">
           <div className="flex flex-col items-center gap-1 cursor-pointer group">
             <div 
-              className="w-32 h-32 relative bg-[var(--astro-primary)] transition-colors duration-300 group-hover:opacity-80"
+              className="w-24 h-24 relative bg-[var(--astro-primary)] transition-colors duration-300 group-hover:opacity-80"
               style={{
                 WebkitMaskImage: "url('/brand/kalon-symbol-master.svg')",
                 WebkitMaskRepeat: "no-repeat",
@@ -91,7 +164,7 @@ export default function DashboardPage() {
                 maskSize: "contain",
               }}
             />
-            <span className="text-sm uppercase tracking-[0.25em] font-semibold text-[var(--astro-primary)]">
+            <span className="text-xs uppercase tracking-[0.25em] font-semibold text-[var(--astro-primary)]">
               Kalon Astro
             </span>
           </div>
@@ -113,51 +186,105 @@ export default function DashboardPage() {
       </header>
 
       {/* Main Content */}
-      <main className="w-full max-w-5xl flex flex-col">
-        <h1 className="text-3xl font-bold mb-10 text-center md:text-left">
-          Escolha uma estratégia
-        </h1>
+      <main className="w-full max-w-5xl flex flex-col items-center gap-12">
+        
+        {/* Formulário Fixo no Topo */}
+        <div className="w-full max-w-2xl">
+          <FormularioKalon 
+            dados={dadosFormulario}
+            onDadosChange={handleDadosChange}
+            cidadeBusca={cidadeBusca}
+            onCidadeBuscaChange={setCidadeBusca}
+            disabled={loadingAgenda}
+          />
+        </div>
 
-        {loadingEstrategias ? (
-          <div className="text-center opacity-70 py-10">Carregando estratégias...</div>
-        ) : errorMsg ? (
-          <div className="text-center font-medium text-[var(--astro-primary)] py-10">
-            {errorMsg}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {estrategias.map((estrategia) => (
-              <Link key={estrategia.id} href={`/agenda?estrategia=${estrategia.id}`}>
-                <div className="flex flex-col justify-between h-full p-6 rounded-2xl bg-[var(--astro-card)] border border-white/5 transition-all duration-300 hover:border-[var(--astro-primary)] hover:-translate-y-1 hover:shadow-xl cursor-pointer">
-                  
-                  <div className="flex flex-col gap-3">
-                    <div className="flex justify-between items-start gap-4">
-                      <h2 className="text-lg font-semibold text-[var(--astro-text)] leading-snug">
-                        {estrategia.nome}
-                      </h2>
-                      {estrategia.status === "beta" && (
-                        <span className="shrink-0 px-2 py-0.5 text-xs font-bold uppercase tracking-wider text-[var(--astro-primary)] border border-[var(--astro-primary)] rounded-full">
-                          BETA
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-sm opacity-70 leading-relaxed">
-                      {estrategia.descricao}
-                    </p>
-                  </div>
-                  
-                  <div className="mt-6">
-                    <span className="text-xs opacity-40 uppercase tracking-widest font-mono">
-                      v{estrategia.versao}
-                    </span>
-                  </div>
+        {/* Área Dinâmica: Grid -> Loading -> Resultado */}
+        <div className="w-full flex flex-col items-center min-h-[400px]">
+          {loadingAgenda ? (
+            <div className="flex flex-col items-center justify-center gap-4 mt-12 animate-in fade-in duration-300">
+              <svg className="animate-spin h-10 w-10 text-[var(--astro-primary)]" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+              </svg>
+              <p className="text-sm opacity-70">Calculando trânsitos astrológicos precisos...</p>
+            </div>
+          ) : resultadoAgenda ? (
+            <div ref={resultsRef} className="w-full max-w-4xl animate-in slide-in-from-bottom-8 fade-in duration-500 mt-4">
+              <div className="flex justify-between items-center mb-8 border-b border-white/10 pb-4">
+                <h2 className="text-3xl font-bold text-[var(--astro-primary)]">
+                  {resultadoAgenda.estrategia_nome || "Sua Agenda Astrológica"}
+                </h2>
+                <button 
+                  onClick={handleNovaAgenda}
+                  className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg text-sm font-semibold transition-colors"
+                >
+                  ← Voltar às Estratégias
+                </button>
+              </div>
+
+              <div className="mb-12">
+                {resultadoAgenda.identity && (
+                  <KalonIdentity identity={resultadoAgenda.identity} />
+                )}
+                
+                {resultadoAgenda.legenda && (
+                  <KalonLegenda legenda={resultadoAgenda.legenda} />
+                )}
+                
+                <KalonObservacoes 
+                  o_que_e={resultadoAgenda.o_que_e} 
+                  como_usar={resultadoAgenda.como_usar} 
+                  observacoes={resultadoAgenda.observacoes} 
+                />
+              </div>
+
+              <AgendaKalon janelas={resultadoAgenda.janelas} nome={resultadoAgenda.nome} />
+              
+              <div className="mt-12 text-center pb-12">
+                <button 
+                  onClick={handleNovaAgenda}
+                  className="inline-block py-3 px-8 rounded-full font-semibold transition-all duration-300 border border-[var(--astro-primary)] text-[var(--astro-primary)] hover:bg-[var(--astro-primary)] hover:text-[var(--astro-bg)]"
+                >
+                  Fazer Nova Agenda
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="w-full flex flex-col items-center animate-in fade-in duration-500">
+              <h2 className="text-2xl font-bold mb-8 text-center self-start md:self-auto w-full max-w-5xl">
+                {paramEstrategia ? "Estratégia Selecionada" : "Escolha uma estratégia"}
+              </h2>
+              <GridEstrategias 
+                estrategias={paramEstrategia ? estrategias.filter(e => e.id === paramEstrategia) : estrategias}
+                loadingEstrategias={loadingEstrategias}
+                errorMsg={errorMsg}
+                onSelect={handleGerarCalendario}
+              />
+              {paramEstrategia && (
+                <div className="mt-8">
+                  <Link href="/dashboard" className="text-sm font-semibold opacity-70 hover:opacity-100 hover:text-[var(--astro-primary)] transition-all">
+                    Ver todas as estratégias
+                  </Link>
                 </div>
-              </Link>
-            ))}
-          </div>
-        )}
+              )}
+            </div>
+          )}
+        </div>
       </main>
-
     </div>
   );
 }
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex min-h-screen items-center justify-center bg-[var(--astro-bg)] text-[var(--astro-text)]">
+        <p className="opacity-70">Carregando...</p>
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
+  );
+}
+
