@@ -147,7 +147,7 @@ function DashboardContent() {
     <div className="min-h-screen p-6 font-[family-name:var(--font-geist-sans)] bg-[var(--astro-bg)] text-[var(--astro-text)] flex flex-col items-center">
       
       {/* Header */}
-      <header className="w-full max-w-5xl flex flex-col md:flex-row items-center justify-between gap-6 mb-12 pt-4">
+      <header className="w-full max-w-5xl flex flex-col md:flex-row items-center justify-between gap-6 mb-12 pt-4 print:hidden">
         {/* Brand Block */}
         <Link href="/">
           <div className="flex flex-col items-center gap-1 cursor-pointer group">
@@ -189,7 +189,7 @@ function DashboardContent() {
       <main className="w-full max-w-5xl flex flex-col items-center gap-12">
         
         {/* Formulário Fixo no Topo */}
-        <div className="w-full max-w-2xl">
+        <div className="w-full max-w-2xl print:hidden">
           <FormularioKalon 
             dados={dadosFormulario}
             onDadosChange={handleDadosChange}

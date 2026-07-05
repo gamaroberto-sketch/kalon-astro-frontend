@@ -113,13 +113,27 @@ export default function AgendaKalon({ janelas, nome }: AgendaKalonProps) {
           <h3 className="text-xl font-semibold">Janelas Temporais</h3>
           <p className="text-sm opacity-70 mt-1">Estratégias calculadas com precisão para {nome}</p>
         </div>
-        <button
-          onClick={handleExportPNG}
-          disabled={exportando}
-          className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors disabled:opacity-50"
-        >
-          {exportando ? "Gerando Imagem..." : "📸 Salvar como Imagem"}
-        </button>
+        <div className="flex gap-2 print:hidden">
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+          >
+            🖨 Imprimir
+          </button>
+          <button
+            onClick={() => window.print()}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors"
+          >
+            ⬇ Salvar PDF
+          </button>
+          <button
+            onClick={handleExportPNG}
+            disabled={exportando}
+            className="flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 transition-colors disabled:opacity-50"
+          >
+            {exportando ? "Gerando..." : "📸 Salvar PNG"}
+          </button>
+        </div>
       </div>
 
       {/* Próxima Oportunidade */}
